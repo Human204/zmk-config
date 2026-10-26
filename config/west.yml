@@ -10,8 +10,8 @@ manifest:
       url-base: https://github.com/urob
   projects:
     - name: zmk
-      remote: zmkfirmware
-      revision: v0.3
+      remote: cormoran
+      revision: v0.3-branch+custom-studio-protocol+activity
       import: app/west.yml
     - name: eyelash_sofle
       remote: a741725193
