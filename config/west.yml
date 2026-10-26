@@ -15,6 +15,7 @@ manifest:
       import: app/west.yml
     - name: eyelash_sofle
       remote: a741725193
+      repo-path: zmk-sofle
       revision: main
     - name: zmk-behavior-runtime-sensor-rotate
       remote: cormoran
