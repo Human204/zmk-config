@@ -192,3 +192,7 @@
         tap-ms = <100>;
     };
 };
+
+&num_word {
+    ignore-modifiers;
+};
