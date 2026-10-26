@@ -2,16 +2,20 @@ manifest:
   remotes:
     - name: zmkfirmware
       url-base: https://github.com/zmkfirmware
+    - name: a741725193
+      url-base: https://github.com/a741725193
     - name: cormoran
       url-base: https://github.com/cormoran
+    - name: urob
+      url-base: https://github.com/urob
   projects:
-    - name: eyelash_sofle
-      url: https://github.com/a741725193/zmk-sofle
-      revision: main
     - name: zmk
-      remote: cormoran
-      revision: v0.3-branch+dya
+      remote: zmkfirmware
+      revision: v0.3
       import: app/west.yml
+    - name: eyelash_sofle
+      remote: a741725193
+      revision: main
     - name: zmk-behavior-runtime-sensor-rotate
       remote: cormoran
       revision: main
@@ -27,5 +31,8 @@ manifest:
     - name: zmk-module-runtime-input-processor
       remote: cormoran
       revision: zmk-v0.3.0.0
+    - name: zmk-auto-layer
+      remote: urob
+      revision: v0.3
   self:
     path: config

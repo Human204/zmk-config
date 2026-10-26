@@ -1,5 +1,5 @@
-#define ZMK_POINTING_DEFAULT_MOVE_VAL 1200  // 600
-#define ZMK_POINTING_DEFAULT_SCRL_VAL 25   // 10
+#define ZMK_POINTING_DEFAULT_MOVE_VAL 1200
+#define ZMK_POINTING_DEFAULT_SCRL_VAL 25
 
 #include <input/processors.dtsi>
 #include <zephyr/dt-bindings/input/input-event-codes.h>
@@ -10,15 +10,20 @@
 #include <dt-bindings/zmk/outputs.h>
 #include <dt-bindings/zmk/pointing.h>
 #include <dt-bindings/zmk/rgb.h>
+#include <behaviors/num_word.dtsi>
 
-&mmv_input_listener { input-processors = <&zip_xy_scaler 2 1>; };
+&mmv_input_listener {
+    input-processors = <&zip_xy_scaler 2 1>;
+};
 
-&msc_input_listener { input-processors = <&zip_scroll_scaler 2 1>; };
+&msc_input_listener {
+    input-processors = <&zip_scroll_scaler 2 1>;
+};
 
 &msc {
-    acceleration-exponent = <1>;      // 0
-    time-to-max-speed-ms = <100>;       // 300
-    delay-ms = <0>;                   // 0
+    acceleration-exponent = <1>;
+    time-to-max-speed-ms = <100>;
+    delay-ms = <0>;
 };
 
 &mmv {
@@ -27,17 +32,11 @@
     trigger-period-ms = <16>;
 };
 
-&soft_off { hold-time-ms = <2000>; };
+&soft_off {
+    hold-time-ms = <2000>;
+};
 
 / {
-    scroll_encoder: scroll_encoder {
-        compatible = "zmk,behavior-sensor-rotate";
-        #sensor-binding-cells = <0>;
-        bindings = <&msc SCRL_DOWN>, <&msc SCRL_UP>;
-
-        tap-ms = <100>;
-    };
-
     behaviors {
         rsr_vol: rsr_vol {
             compatible = "zmk,behavior-runtime-sensor-rotate";
@@ -54,29 +53,31 @@
         };
     };
 
-    combos {
-        compatible = "zmk,combos";
-
-        softoff {
-            bindings = <&soft_off>;
-            key-positions = <14 28 40>;
-        };
-    };
-
     macros {
         SHIFT_MCLK: SHIFT_MCLK {
             compatible = "zmk,behavior-macro";
             #binding-cells = <0>;
-            bindings =
-                <&macro_press>,
-                <&kp LEFT_SHIFT>,
-                <&macro_press>,
-                <&mkp MB3>,
-                <&macro_pause_for_release>,
-                <&macro_release>,
-                <&kp LEFT_SHIFT &mkp MB3>;
-
             label = "SHIFT_MCLK";
+            bindings = <&macro_press>, <&kp LEFT_SHIFT>, <&macro_press>, <&mkp MB3>, <&macro_pause_for_release>, <&macro_release>, <&kp LEFT_SHIFT>, <&mkp MB3>;
+        };
+    };
+
+    combos {
+        compatible = "zmk,combos";
+
+        softoff {
+            key-positions = <14 28 40>;
+            bindings = <&soft_off>;
+        };
+
+        usb {
+            key-positions = <21 28 44>;
+            bindings = <&out OUT_USB>;
+        };
+
+        ble {
+            key-positions = <16 36 44>;
+            bindings = <&out OUT_BLE>;
         };
     };
 
@@ -84,68 +85,110 @@
         compatible = "zmk,keymap";
 
         layer0 {
+            display-name = "LAYER0";
+            // | ESC   | 1 | 2    | 3   | 4   | 5      |      | UP     |       | 6     | 7      | 8     | 9   | 0    | BSPC  |
+            // | TAB   | Q | W    | E   | R   | T      |      | DOWN   |       | Y     | U      | I     | O   | P    | BSLH  |
+            // | CAPS  | A | S    | D   | F   | G      | LEFT |                | H     | J      | K     | L   | ;    | APOS  |
+            // | SHIFT | Z | X    | C   | V   | B      |               | RIGHT | N     | M      | ,     | .   | FSLH | ENTER |
+            //                                                | C_MUTE |
+            //             | CTRL | GUI | ALT | LAYER1 | SPC  | ENTER  | SPC   | ENTER | LAYER2 | SHIFT | DEL |
             bindings = <
-&kp ESC     &kp N1     &kp N2        &kp N3        &kp N4  &kp N5       &kp UP_ARROW     &kp N6     &kp N7     &kp N8     &kp N9           &kp N0      &kp BACKSPACE
-&kp TAB     &kp Q      &kp W         &kp E         &kp R   &kp T        &kp DOWN_ARROW   &kp Y      &kp U      &kp I      &kp O            &kp P       &kp BSLH
-&kp CAPS    &kp A      &kp S         &kp D         &kp F   &kp G        &kp LEFT_ARROW   &kp H      &kp J      &kp K      &kp L            &kp SEMI    &kp APOS
-&kp LSHFT   &kp Z      &kp X         &kp C         &kp V   &kp B        &kp RIGHT_ARROW  &kp N      &kp M      &kp COMMA  &kp DOT          &kp FSLH    &kp ENTER
-&kp C_MUTE  &kp LCTRL  &kp LEFT_GUI  &kp LEFT_ALT  &mo 1   &kp SPACE    &kp ENTER        &kp SPACE  &kp ENTER  &mo 2      &kp RIGHT_SHIFT  &kp DELETE
+                &kp ESC    &kp N1  &kp N2     &kp N3        &kp N4        &kp N5                  &kp UP_ARROW                     &kp N6     &kp N7  &kp N8           &kp N9      &kp N0    &kp BACKSPACE
+                &kp TAB    &kp Q   &kp W      &kp E         &kp R         &kp T                   &kp DOWN_ARROW                   &kp Y      &kp U   &kp I            &kp O       &kp P     &kp BSLH
+                &kp CAPS   &kp A   &kp S      &kp D         &kp F         &kp G   &kp LEFT_ARROW                                   &kp H      &kp J   &kp K            &kp L       &kp SEMI  &kp APOS
+                &kp LSHFT  &kp Z   &kp X      &kp C         &kp V         &kp B                                   &kp RIGHT_ARROW  &kp N      &kp M   &kp COMMA        &kp DOT     &kp FSLH  &kp ENTER
+                                                                                                  &kp C_MUTE
+                                   &kp LCTRL  &kp LEFT_GUI  &kp LEFT_ALT  &mo 1   &kp SPACE       &kp ENTER       &kp SPACE        &kp ENTER  &mo 2   &kp RIGHT_SHIFT  &kp DELETE
             >;
 
             sensor-bindings = <&rsr_vol &rsr_trans>;
-            display-name = "LAYER0";
         };
 
         layer_1 {
+            display-name = "LAYER1";
+            // | `          | F1             | F2            | F3             | F4             | F5             |               | MMV MOVE_UP   |                | F6             | F7             | F8     | F9    | F10 | F11 |
+            // | NUM_WORD 3 | 6              | 7             | 8              | 9              | 0              |               | MMV MOVE_DOWN |                | PG_UP          | END            | UP     | HOME  | -   | =   |
+            // |            | ~              | {             | }              |                | MKP MB1        | MMV MOVE_LEFT |                                | PG_DN          | LEFT           | DOWN   | RIGHT | [   | ]   |
+            // |            | RGB_UG RGB_OFF | RGB_UG RGB_ON | RGB_UG RGB_EFF | RGB_UG RGB_EFR | RGB_UG RGB_SPI |                               | MMV MOVE_RIGHT | RGB_UG RGB_BRI | RGB_UG RGB_BRD | INSERT |       |     | F12 |
+            //                                                                                                                  | C_MUTE        |
+            //                               |               |                | ALTGR          |                |               | MKP LCLK      |                |                |                |        |       |
             bindings = <
-&kp GRAVE   &kp F1           &kp F2          &kp F3           &kp F4           &kp F5             &mmv MOVE_UP     &kp F6           &kp F7           &kp F8      &kp F9     &kp F10           &trans
-&trans      &kp GRAVE        &mkp LCLK       &mkp MCLK        &mkp RCLK        &mkp MB4           &mmv MOVE_DOWN   &kp PG_UP        &kp END          &kp UP      &kp HOME   &kp MINUS         &kp EQUAL
-&trans      &kp TILDE        &trans          &trans           &trans           &mkp MB5           &mmv MOVE_LEFT   &kp PG_DN        &kp LEFT         &kp DOWN    &kp RIGHT  &kp LEFT_BRACKET  &kp RIGHT_BRACKET
-&trans      &rgb_ug RGB_OFF  &rgb_ug RGB_ON  &rgb_ug RGB_EFF  &rgb_ug RGB_EFR  &rgb_ug RGB_SPI    &mmv MOVE_RIGHT  &rgb_ug RGB_BRI  &rgb_ug RGB_BRD  &kp INSERT  &kp F11    &kp F12           &trans
-&kp C_MUTE  &trans           &trans          &trans           &trans           &trans             &mkp LCLK        &trans           &trans           &trans      &trans     &trans
+                &kp GRAVE    &kp F1           &kp F2          &kp F3           &kp F4           &kp F5                           &mmv MOVE_UP                     &kp F6           &kp F7           &kp F8      &kp F9     &kp F10           &kp F11
+                &num_word 3  &kp N6           &kp N7          &kp N8           &kp N9           &kp N0                           &mmv MOVE_DOWN                   &kp PG_UP        &kp END          &kp UP      &kp HOME   &kp MINUS         &kp EQUAL
+                &trans       &kp TILDE        &kp LBRC        &kp RBRC         &trans           &mkp MB1         &mmv MOVE_LEFT                                   &kp PG_DN        &kp LEFT         &kp DOWN    &kp RIGHT  &kp LEFT_BRACKET  &kp RIGHT_BRACKET
+                &trans       &rgb_ug RGB_OFF  &rgb_ug RGB_ON  &rgb_ug RGB_EFF  &rgb_ug RGB_EFR  &rgb_ug RGB_SPI                                  &mmv MOVE_RIGHT  &rgb_ug RGB_BRI  &rgb_ug RGB_BRD  &kp INSERT  &trans     &trans            &kp F12
+                                                                                                                                 &kp C_MUTE
+                                              &trans          &trans           &kp RALT         &trans           &trans          &mkp LCLK       &trans           &trans           &trans           &trans      &trans
             >;
 
             sensor-bindings = <&rsr_vol &rsr_trans>;
-            display-name = "LAYER1";
         };
 
         layer_2 {
+            display-name = "LAYER2";
+            // | ~ | RA(N1)      | RA(N2)        | RA(N3)     | RA(N4) | RA(N5) |               | MMV MOVE_UP   |                | RA(N6) | RA(N7) | RA(N8)    | RA(N9)   | RA(N0)     | LS(N4) |
+            // |   | BTCLR       | BT BT_CLR_ALL | PREV       | C_PLAY | NEXT   |               | MMV MOVE_DOWN |                |        |        | F11       | F12      | _          | +      |
+            // |   | OUT OUT_USB | OUT OUT_BLE   |            |        |        | MMV MOVE_LEFT |                                | BT1    | BT2    | BT3       | BT4      | {          | }      |
+            // |   | SYS_RESET   |               | BOOTLOADER |        |        |                               | MMV MOVE_RIGHT |        |        | SYS_RESET | SOFT_OFF | BOOTLOADER |        |
+            //                                                                                  |               |
+            //                   |               |            |        |        |               | MKP LCLK      |                |        |        |           |          |
             bindings = <
-&kp TILDE  &bt BT_SEL 0  &bt BT_SEL 1    &bt BT_SEL 2  &bt BT_SEL 3  &bt BT_SEL 4    &mmv MOVE_UP     &kp F6  &kp F7  &kp F8      &kp F9     &kp F10      &trans
-&trans     &bt BT_CLR    &bt BT_CLR_ALL  &trans        &trans        &trans          &mmv MOVE_DOWN   &trans  &trans  &kp F11     &kp F12    &kp UNDER    &kp PLUS
-&trans     &out OUT_USB  &out OUT_BLE    &trans        &trans        &trans          &mmv MOVE_LEFT   &trans  &trans  &trans      &trans     &kp LBRC     &kp RBRC
-&trans     &sys_reset    &trans          &bootloader   &trans        &trans          &mmv MOVE_RIGHT  &trans  &trans  &sys_reset  &soft_off  &bootloader  &trans
-&trans     &trans        &trans          &trans        &trans        &trans          &mkp LCLK        &trans  &trans  &trans      &trans     &trans
+                &kp TILDE  &kp RA(N1)    &kp RA(N2)      &kp RA(N3)   &kp RA(N4)  &kp RA(N5)                  &mmv MOVE_UP                     &kp RA(N6)    &kp RA(N7)    &kp RA(N8)    &kp RA(N9)    &kp RA(N0)   &kp LS(N4)
+                &trans     &bt BT_CLR    &bt BT_CLR_ALL  &kp C_PREV   &kp C_PLAY  &kp C_NEXT                  &mmv MOVE_DOWN                   &trans        &trans        &kp F11       &kp F12       &kp UNDER    &kp PLUS
+                &trans     &out OUT_USB  &out OUT_BLE    &trans       &trans      &trans      &mmv MOVE_LEFT                                   &bt BT_SEL 0  &bt BT_SEL 1  &bt BT_SEL 2  &bt BT_SEL 3  &kp LBRC     &kp RBRC
+                &trans     &sys_reset    &trans          &bootloader  &trans      &trans                                      &mmv MOVE_RIGHT  &trans        &trans        &sys_reset    &soft_off     &bootloader  &trans
+                                                                                                              &trans
+                                         &trans          &trans       &trans      &trans      &trans          &mkp LCLK       &trans           &trans        &trans        &trans        &trans
             >;
 
-            display-name = "LAYER2";
             sensor-bindings = <&rsr_vol &rsr_trans>;
         };
 
-        layer_3 {
+        numbers {
+            display-name = "NUMBERS";
+            // |   | RA(N1) | RA(N2) | RA(N3) | RA(N4) | RA(N5) |   |   |   | RA(N6) | RA(N7) | RA(N8) | RA(N9) | RA(N0) | RA(EQUAL) |
+            // |   |        |        |        |        |        |   |   |   |        |        |        |        |        |           |
+            // |   |        |        |        |        |        |   |       |        |        |        |        |        |           |
+            // |   |        |        |        |        |        |       |   |        |        |        |        |        |           |
+            //                                                      |   |
+            //              |        |        |        |        |   |   |   |        |        |        |        |
             bindings = <
-&trans  &trans  &trans  &trans  &trans  &trans    &trans  &trans  &trans  &trans  &trans  &trans  &trans
-&trans  &trans  &trans  &trans  &trans  &trans    &trans  &trans  &trans  &trans  &trans  &trans  &trans
-&trans  &trans  &trans  &trans  &trans  &trans    &trans  &trans  &trans  &trans  &trans  &trans  &trans
-&trans  &trans  &trans  &trans  &trans  &trans    &trans  &trans  &trans  &trans  &trans  &trans  &trans
-&trans  &trans  &trans  &trans  &trans  &trans    &trans  &trans  &trans  &trans  &trans  &trans
+                &trans  &kp RA(N1)  &kp RA(N2)  &kp RA(N3)  &kp RA(N4)  &kp RA(N5)          &trans          &kp RA(N6)  &kp RA(N7)  &kp RA(N8)  &kp RA(N9)  &kp RA(N0)  &kp RA(EQUAL)
+                &trans  &trans      &trans      &trans      &trans      &trans              &trans          &trans      &trans      &trans      &trans      &trans      &trans
+                &trans  &trans      &trans      &trans      &trans      &trans      &trans                  &trans      &trans      &trans      &trans      &trans      &trans
+                &trans  &trans      &trans      &trans      &trans      &trans                      &trans  &trans      &trans      &trans      &trans      &trans      &trans
+                                                                                            &trans
+                                    &trans      &trans      &trans      &trans      &trans  &trans  &trans  &trans      &trans      &trans      &trans
             >;
 
-            display-name = "LAYER3";
             sensor-bindings = <&rsr_vol &rsr_trans>;
         };
 
         layer_4 {
+            display-name = "LAYER4";
+            // |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |
+            // |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |
+            // |   |   |   |   |   |   |   |       |   |   |   |   |   |   |
+            // |   |   |   |   |   |   |       |   |   |   |   |   |   |   |
+            //                             |   |
+            //         |   |   |   |   |   |   |   |   |   |   |   |
             bindings = <
-&trans  &trans  &trans  &trans  &trans  &trans    &trans  &trans  &trans  &trans  &trans  &trans  &trans
-&trans  &trans  &trans  &trans  &trans  &trans    &trans  &trans  &trans  &trans  &trans  &trans  &trans
-&trans  &trans  &trans  &trans  &trans  &trans    &trans  &trans  &trans  &trans  &trans  &trans  &trans
-&trans  &trans  &trans  &trans  &trans  &trans    &trans  &trans  &trans  &trans  &trans  &trans  &trans
-&trans  &trans  &trans  &trans  &trans  &trans    &trans  &trans  &trans  &trans  &trans  &trans
+                &trans  &trans  &trans  &trans  &trans  &trans          &trans          &trans  &trans  &trans  &trans  &trans  &trans
+                &trans  &trans  &trans  &trans  &trans  &trans          &trans          &trans  &trans  &trans  &trans  &trans  &trans
+                &trans  &trans  &trans  &trans  &trans  &trans  &trans                  &trans  &trans  &trans  &trans  &trans  &trans
+                &trans  &trans  &trans  &trans  &trans  &trans                  &trans  &trans  &trans  &trans  &trans  &trans  &trans
+                                                                        &trans
+                                &trans  &trans  &trans  &trans  &trans  &trans  &trans  &trans  &trans  &trans  &trans
             >;
 
-            display-name = "LAYER4";
             sensor-bindings = <&rsr_vol &rsr_trans>;
         };
+    };
+
+    scroll_encoder: scroll_encoder {
+        compatible = "zmk,behavior-sensor-rotate";
+        #sensor-binding-cells = <0>;
+        bindings = <&msc SCRL_DOWN>, <&msc SCRL_UP>;
+        tap-ms = <100>;
     };
 };
